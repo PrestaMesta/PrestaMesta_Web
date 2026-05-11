@@ -1,59 +1,50 @@
-# PrestaMestaWeb
+# PrestaMesta Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.10.
+### Dockerfile.dev
 
-## Development server
+Define la imagen base y los pasos para preparar el entorno de Node.js/Angular dentro del contenedor en modo desarrollo.
 
-To start a local development server, run:
+    Utiliza una imagen ligera (node:22-alpine o similar compatible con Angular 21).
+    Instala las dependencias de manera aislada.
+    Expone el puerto 4200 y ejecuta el servidor de desarrollo exponiendo el host hacia afuera (--host 0.0.0.0).
 
-```bash
-ng serve
-```
+### docker-compose.yml
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Orquesta el servicio, mapea el puerto local 4200 con el del contenedor y configura volúmenes para lograr la sincronización en tiempo real (Hot Reload). Gracias a esto, cualquier cambio que guardes en tu editor local se reflejará inmediatamente en el navegador sin necesidad de reiniciar el contenedor.
 
-## Code scaffolding
+## Instrucciones de Uso Paso a Paso
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Paso 1: Clonar el repositorio
+Abre tu terminal y clona el repositorio (si aún no lo has hecho):
 
-```bash
-ng generate component component-name
-```
+´´´bash
+git clone <url-del-repo-presta-mesta-web>
+cd presta-mesta-web
+´´´
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Paso 2: Construir y levantar el contenedor
+Para arrancar el entorno por primera vez (o para reconstruirlo tras añadir nuevas dependencias), ejecuta el siguiente comando en la raíz del proyecto:
 
-```bash
-ng generate --help
-```
+´´´bash
+docker compose up --build
+´´´
 
-## Building
+Nota: La primera vez tardará unos minutos mientras descarga la imagen base de Node e instala los paquetes definidos en el package.json.
 
-To build the project run:
+Paso 3: Acceder a la aplicación
+Una vez que la terminal muestre el mensaje de compilación exitosa de Angular, abre tu navegador web e ingresa a:
+    http://localhost:4200
 
-```bash
-ng build
-```
+Paso 4: Programar con Hot Reload
+¡Listo! Ya puedes abrir el proyecto en tu editor de código. Modifica cualquier archivo .ts, .html o .scss/.css; al guardar los cambios, la página se recargará automáticamente reflejando las actualizaciones.
+Paso 5: Detener el contenedor
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Cuando termines de trabajar, puedes detener el servicio presionando Ctrl + C en la terminal donde se está ejecutando, o bien abriendo otra terminal en la misma carpeta y ejecutando:
 
-## Running unit tests
+´´´bash
+docker compose down
+´´´
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Notas sobre Despliegue y Producción (Coolify / DigitalOcean)
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Es importante recordar para las evaluaciones de Arquitectura de Software y Seguridad Informática que esta configuración (Dockerfile.dev y ng serve) está optimizada exclusivamente para el desarrollo local.

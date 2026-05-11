@@ -53,3 +53,4 @@ docker compose down
 ## Notas sobre Despliegue y Producción (Coolify / DigitalOcean)
 
 Es importante recordar para las evaluaciones de Arquitectura de Software y Seguridad Informática que esta configuración (Dockerfile.dev y ng serve) está optimizada exclusivamente para el desarrollo local.
+Ademas, la ip que da network no funciona ya que esta restringida al usar contenedores docker, pero funcionara correctamente cuando se despliegue

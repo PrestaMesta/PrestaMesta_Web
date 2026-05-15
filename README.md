@@ -18,18 +18,18 @@ Orquesta el servicio, mapea el puerto local 4200 con el del contenedor y configu
 
 Abre tu terminal y clona el repositorio (si aún no lo has hecho):
 
-´´´bash
+```bash
 git clone <url-del-repo-presta-mesta-web>
 cd presta-mesta-web
-´´´
+```
 
 ### Paso 2: Construir y levantar el contenedor
 
 Para arrancar el entorno por primera vez (o para reconstruirlo tras añadir nuevas dependencias), ejecuta el siguiente comando en la raíz del proyecto:
 
-´´´bash
+```bash
 docker compose up --build
-´´´
+```
 
 Nota: La primera vez tardará unos minutos mientras descarga la imagen base de Node e instala los paquetes definidos en el package.json.
 
@@ -46,9 +46,9 @@ Una vez que la terminal muestre el mensaje de compilación exitosa de Angular, a
 
 Cuando termines de trabajar, puedes detener el servicio presionando Ctrl + C en la terminal donde se está ejecutando, o bien abriendo otra terminal en la misma carpeta y ejecutando:
 
-´´´bash
+```bash
 docker compose down
-´´´
+```
 
 ## Notas sobre Despliegue y Producción (Coolify / DigitalOcean)
 

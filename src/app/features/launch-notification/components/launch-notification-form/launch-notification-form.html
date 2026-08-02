@@ -1,0 +1,93 @@
+<div class="bg-navy-50/60">
+  <div class="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 lg:px-8">
+    <h2 class="text-3xl font-bold tracking-tight text-navy-900 sm:text-4xl">
+      Entérate cuando haya novedades
+    </h2>
+    <p class="mt-3 text-navy-700">
+      Déjanos tu correo y te avisaremos sobre avances de PrestaMesta. Este formulario funciona en
+      modo de demostración: no almacenamos tu correo.
+    </p>
+
+    @if (status() === 'success') {
+      <p
+        class="mt-8 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800"
+        aria-live="polite"
+      >
+        Listo. En una versión real, te avisaríamos aquí. Como esta es una demostración, tu correo no
+        fue almacenado ni enviado a ningún servicio.
+      </p>
+    } @else {
+      <form class="mt-8 text-left" novalidate (ngSubmit)="onSubmit()" [formGroup]="form">
+        <div class="sr-only" aria-hidden="true">
+          <label for="company">No completes este campo</label>
+          <input
+            id="company"
+            type="text"
+            tabindex="-1"
+            autocomplete="off"
+            formControlName="company"
+          />
+        </div>
+
+        <label for="email" class="block text-sm font-medium text-navy-900">
+          Correo electrónico
+        </label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+          aria-describedby="email-error"
+        />
+        <p id="email-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+            Ingresa tu correo electrónico.
+          } @else if (form.controls.email.touched && form.controls.email.hasError('emailFormat')) {
+            Ingresa un correo electrónico válido.
+          } @else if (form.controls.email.touched && form.controls.email.hasError('maxlength')) {
+            El correo es demasiado largo.
+          }
+        </p>
+
+        <div class="mt-4 flex items-start gap-3">
+          <input
+            id="consent"
+            type="checkbox"
+            formControlName="consent"
+            class="mt-1 h-4 w-4 rounded border-navy-300"
+            [attr.aria-invalid]="form.controls.consent.invalid && form.controls.consent.touched"
+            aria-describedby="consent-error"
+          />
+          <label for="consent" class="text-sm text-navy-700">
+            He leído el
+            <a routerLink="/aviso-de-privacidad" class="font-semibold text-emerald-700 underline">
+              aviso de privacidad
+            </a>
+            y acepto que se use mi correo únicamente para avisos de este proyecto.
+          </label>
+        </div>
+        <p id="consent-error" class="mt-1 min-h-5 text-sm text-red-700" aria-live="polite">
+          @if (form.controls.consent.touched && form.controls.consent.invalid) {
+            Debes aceptar el aviso de privacidad para continuar.
+          }
+        </p>
+
+        @if (status() === 'error') {
+          <p class="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800" aria-live="assertive">
+            Ocurrió un problema al procesar tu solicitud. Intenta de nuevo más tarde.
+          </p>
+        }
+
+        <button
+          type="submit"
+          [disabled]="status() === 'submitting'"
+          class="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-navy-300"
+        >
+          {{ status() === 'submitting' ? 'Enviando…' : 'Avísame cuando esté disponible' }}
+        </button>
+      </form>
+    }
+  </div>
+</div>

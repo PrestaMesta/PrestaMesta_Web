@@ -1,0 +1,73 @@
+<footer class="border-t border-navy-100 bg-navy-950 text-navy-100">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-4 lg:px-8">
+    <div class="lg:col-span-2">
+      <a
+        routerLink="/"
+        fragment="inicio"
+        class="inline-block rounded-md"
+        aria-label="PrestaMesta, ir al inicio"
+      >
+        <app-logo theme="dark" />
+      </a>
+      <p class="mt-4 max-w-md text-sm text-navy-200">
+        PrestaMesta es un proyecto académico y demostrativo. No constituye una oferta financiera ni
+        garantiza la aprobación de préstamos.
+      </p>
+    </div>
+
+    <nav aria-label="Enlaces del sitio">
+      <h2 class="text-sm font-semibold text-white">Explorar</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <li><a routerLink="/" fragment="beneficios" class="hover:text-white">Beneficios</a></li>
+        <li>
+          <a routerLink="/" fragment="como-funciona" class="hover:text-white">Cómo funciona</a>
+        </li>
+        <li><a routerLink="/" fragment="vista-previa" class="hover:text-white">Vista previa</a></li>
+        <li>
+          <a routerLink="/" fragment="preguntas-frecuentes" class="hover:text-white">
+            Preguntas frecuentes
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <nav aria-label="Legal">
+      <h2 class="text-sm font-semibold text-white">Legal y seguridad</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        <li><a routerLink="/seguridad" class="hover:text-white">Seguridad</a></li>
+        <li>
+          <a routerLink="/aviso-de-privacidad" class="hover:text-white">Aviso de privacidad</a>
+        </li>
+        <li><a routerLink="/terminos-de-uso" class="hover:text-white">Términos de uso</a></li>
+        @if (config().contactEmail) {
+          <li>
+            <a [href]="'mailto:' + config().contactEmail" class="hover:text-white">
+              {{ config().contactEmail }}
+            </a>
+          </li>
+        }
+        @if (config().githubUrl) {
+          <li>
+            <a
+              [href]="config().githubUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-white"
+            >
+              GitHub
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </div>
+
+  <div class="border-t border-navy-800">
+    <div
+      class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-xs text-navy-300 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
+    >
+      <p>&copy; {{ currentYear }} PrestaMesta. Proyecto académico y demostrativo.</p>
+      <p>Arquitectura de Software &amp; Seguridad Informática.</p>
+    </div>
+  </div>
+</footer>

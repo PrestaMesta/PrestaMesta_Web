@@ -1,3 +1,86 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles: Tailwind v4 CSS-first theme + minimal base layer for PrestaMesta. */
 
 @import 'tailwindcss';
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+
+  /* Petrol / deep navy: trust, stability. */
+  --color-navy-50: #eef4f7;
+  --color-navy-100: #d7e5ec;
+  --color-navy-200: #b0cbda;
+  --color-navy-300: #82abc2;
+  --color-navy-400: #4f84a0;
+  --color-navy-500: #2e6884;
+  --color-navy-600: #1f4f68;
+  --color-navy-700: #183f53;
+  --color-navy-800: #123043;
+  --color-navy-900: #0c222f;
+  --color-navy-950: #071620;
+
+  /* Emerald: primary actions, growth. */
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  --color-emerald-950: #022c22;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-navy-900;
+  }
+
+  /* Offsets scroll targets so the sticky header never covers the section heading. */
+  section[id],
+  main [id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-emerald-600);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Visually hidden but available to assistive technology (skip link target label, etc.). */
+.sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

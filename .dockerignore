@@ -1,0 +1,17 @@
+node_modules
+dist
+.angular
+.git
+.github
+coverage
+playwright-report
+test-results
+blob-report
+tests
+docs
+*.md
+.env
+.env.local
+.vscode
+.editorconfig
+.gitignore

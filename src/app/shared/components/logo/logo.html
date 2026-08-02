@@ -1,0 +1,36 @@
+<span class="inline-flex items-center gap-2" aria-hidden="true">
+  <svg viewBox="0 0 100 100" class="h-8 w-8 shrink-0" focusable="false">
+    <defs>
+      <linearGradient id="pm-logo-gradient" x1="0" y1="0" x2="100" y2="100">
+        <stop offset="0" stop-color="#183f53" />
+        <stop offset="1" stop-color="#059669" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M50 4 L88 18 V48 C88 75 70 91 50 97 C30 91 12 75 12 48 V18 Z"
+      fill="url(#pm-logo-gradient)"
+    />
+    <text x="50" y="66" text-anchor="middle" font-size="46" font-weight="700" fill="#ffffff">
+      P
+    </text>
+    <path
+      d="M63 31 L74 20 M74 20 H65 M74 20 V29"
+      stroke="#ffffff"
+      stroke-width="4.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+  </svg>
+  <span
+    class="text-lg font-bold tracking-tight"
+    [class.text-navy-900]="theme() === 'light'"
+    [class.text-white]="theme() === 'dark'"
+  >
+    Presta<span
+      [class.text-emerald-600]="theme() === 'light'"
+      [class.text-emerald-400]="theme() === 'dark'"
+      >Mesta</span
+    >
+  </span>
+</span>

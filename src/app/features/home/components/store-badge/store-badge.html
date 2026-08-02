@@ -1,0 +1,19 @@
+<div class="inline-flex flex-col items-start gap-1">
+  <button
+    type="button"
+    class="flex items-center gap-3 rounded-xl border border-navy-200 bg-white px-4 py-2.5 text-left shadow-sm transition-colors hover:border-navy-300"
+    [attr.aria-describedby]="messageId()"
+    (click)="toggleMessage()"
+  >
+    <app-icon name="smartphone" [size]="22" class="text-navy-700" />
+    <span>
+      <span class="block text-[11px] tracking-wide text-navy-500 uppercase">Próximamente en</span>
+      <span class="block text-sm font-semibold text-navy-900">{{ storeLabel() }}</span>
+    </span>
+  </button>
+  <p [id]="messageId()" class="text-xs text-navy-600" aria-live="polite">
+    @if (messageVisible()) {
+      PrestaMesta estará disponible próximamente en esta tienda.
+    }
+  </p>
+</div>

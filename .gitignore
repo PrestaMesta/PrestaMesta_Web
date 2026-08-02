@@ -6,8 +6,8 @@
 /out-tsc
 /bazel-out
 
-# Node
-/node_modules
+# Node (matches at any depth — the root app and server/ each have their own node_modules)
+node_modules/
 npm-debug.log
 yarn-error.log
 
@@ -39,6 +39,18 @@ testem.log
 /typings
 __screenshots__/
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Environment
+.env
+.env.local
+
 # System files
 .DS_Store
 Thumbs.db
+
+CLAUDE.md

@@ -1,0 +1,21 @@
+<div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+  <h2 class="text-3xl font-bold tracking-tight text-navy-900 sm:text-4xl">Preguntas frecuentes</h2>
+
+  <div class="mt-8 divide-y divide-navy-100 rounded-2xl border border-navy-100 bg-white">
+    @for (item of items; track item.question) {
+      <details class="group px-6 py-4 open:pb-5">
+        <summary
+          class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-navy-900 marker:content-none"
+        >
+          {{ item.question }}
+          <app-icon
+            name="chevron-down"
+            [size]="20"
+            class="shrink-0 text-navy-500 transition-transform group-open:rotate-180"
+          />
+        </summary>
+        <p class="mt-3 text-sm text-navy-700">{{ item.answer }}</p>
+      </details>
+    }
+  </div>
+</div>

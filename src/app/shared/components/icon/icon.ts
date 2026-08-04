@@ -28,7 +28,11 @@ export type IconName =
   | 'search'
   | 'credit-card'
   | 'bell'
-  | 'user';
+  | 'user'
+  | 'home'
+  | 'users'
+  | 'log-out'
+  | 'refresh';
 
 @Component({
   selector: 'app-icon',

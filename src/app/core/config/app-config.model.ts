@@ -15,6 +15,12 @@ export interface AppPublicConfig {
   readonly siteUrl: string;
   readonly githubUrl: string;
   readonly contactEmail: string;
+  /**
+   * Origin only (e.g. `https://apitest.prestamesta.fun`), no path — mirrors the sibling Flutter
+   * app's `API_BASE_URL` convention. `ApiConfigService` appends `/api/v1` exactly once. Left
+   * blank by default: no real backend origin has been decided for this deployment yet.
+   */
+  readonly apiBaseUrl: string;
 }
 
 export const DEFAULT_APP_CONFIG: AppPublicConfig = {
@@ -26,6 +32,7 @@ export const DEFAULT_APP_CONFIG: AppPublicConfig = {
   siteUrl: '',
   githubUrl: '',
   contactEmail: '',
+  apiBaseUrl: '',
 };
 
 const CONFIG_KEYS = Object.keys(DEFAULT_APP_CONFIG) as readonly (keyof AppPublicConfig)[];

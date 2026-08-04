@@ -6,5 +6,6 @@
   "apkFileSize": "",
   "siteUrl": "",
   "githubUrl": "",
-  "contactEmail": ""
+  "contactEmail": "",
+  "apiBaseUrl": "https://apitest.prestamesta.fun"
 }

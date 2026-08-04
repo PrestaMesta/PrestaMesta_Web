@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { adminAuthGuard } from './features/admin/auth/guards/admin-auth.guard';
+import { adminSuperadminGuard } from './features/admin/auth/guards/admin-superadmin.guard';
 
 export const routes: Routes = [
   {
@@ -34,6 +36,56 @@ export const routes: Routes = [
       import('./features/not-found/pages/not-found-page/not-found-page').then(
         (m) => m.NotFoundPage,
       ),
+  },
+  {
+    path: 'admin/login',
+    title: 'Iniciar sesión — Panel administrativo PrestaMesta',
+    loadComponent: () =>
+      import('./features/admin/auth/pages/admin-login-page/admin-login-page').then(
+        (m) => m.AdminLoginPage,
+      ),
+  },
+  {
+    path: 'admin',
+    canActivate: [adminAuthGuard],
+    loadComponent: () =>
+      import('./features/admin/layout/admin-shell/admin-shell').then((m) => m.AdminShell),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Inicio — Panel administrativo PrestaMesta',
+        loadComponent: () =>
+          import('./features/admin/pages/admin-home-page/admin-home-page').then(
+            (m) => m.AdminHomePage,
+          ),
+      },
+      {
+        path: 'creditos',
+        title: 'Créditos — Panel administrativo PrestaMesta',
+        loadComponent: () =>
+          import('./features/admin/credits/pages/admin-credits-page/admin-credits-page').then(
+            (m) => m.AdminCreditsPage,
+          ),
+      },
+      {
+        path: 'solicitudes',
+        title: 'Solicitudes — Panel administrativo PrestaMesta',
+        loadComponent: () =>
+          import('./features/admin/pages/admin-requests-page/admin-requests-page').then(
+            (m) => m.AdminRequestsPage,
+          ),
+      },
+      {
+        path: 'administradores',
+        canActivate: [adminSuperadminGuard],
+        title: 'Administradores — Panel administrativo PrestaMesta',
+        loadComponent: () =>
+          import('./features/admin/pages/admin-administrators-page/admin-administrators-page').then(
+            (m) => m.AdminAdministratorsPage,
+          ),
+      },
+    ],
   },
   {
     path: '**',

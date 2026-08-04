@@ -29,6 +29,7 @@ describe('parseAppConfig', () => {
       siteUrl: 'https://prestamesta.example.com',
       githubUrl: 'https://github.com/example/prestamesta',
       contactEmail: 'contacto@example.com',
+      apiBaseUrl: 'https://apitest.prestamesta.fun',
     };
     expect(parseAppConfig(raw)).toEqual(raw);
   });

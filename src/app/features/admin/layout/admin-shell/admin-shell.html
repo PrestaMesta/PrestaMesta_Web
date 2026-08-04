@@ -1,0 +1,41 @@
+<div class="flex min-h-screen flex-col bg-navy-50/40 lg:flex-row">
+  <aside class="flex flex-col border-b border-navy-200 bg-white lg:w-64 lg:border-b-0 lg:border-r">
+    <div class="px-6 py-6">
+      <p class="text-lg font-bold tracking-tight text-navy-900">PrestaMesta</p>
+      <p class="text-xs font-medium text-navy-500">Panel administrativo</p>
+    </div>
+
+    <nav class="flex-1 space-y-1 px-3" aria-label="Navegación del panel administrativo">
+      @for (link of navLinks(); track link.path) {
+        <a
+          [routerLink]="link.path"
+          routerLinkActive="bg-emerald-50 text-emerald-800"
+          [routerLinkActiveOptions]="{ exact: link.path === '/admin' }"
+          class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-navy-700 hover:bg-navy-50"
+        >
+          <app-icon [name]="link.icon" [size]="20" />
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="border-t border-navy-200 px-4 py-4">
+      @if (admin(); as admin) {
+        <p class="truncate text-sm font-semibold text-navy-900">{{ admin.nombre }}</p>
+        <p class="truncate text-xs text-navy-500">{{ admin.rol }}</p>
+      }
+      <button
+        type="button"
+        (click)="logout()"
+        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-navy-200 px-3 py-2 text-sm font-medium text-navy-700 hover:bg-navy-50"
+      >
+        <app-icon name="log-out" [size]="18" />
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <main class="flex-1 px-4 py-8 sm:px-8">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,56 @@
+<div class="flex min-h-screen items-center justify-center bg-navy-50/60 px-4 py-16">
+  <div class="w-full max-w-md rounded-2xl border border-navy-200 bg-white p-8 shadow-sm">
+    <h1 class="text-2xl font-bold tracking-tight text-navy-900">Panel administrativo</h1>
+    <p class="mt-2 text-sm text-navy-700">Inicia sesión con tu cuenta de administrador.</p>
+
+    <form class="mt-8" novalidate (ngSubmit)="onSubmit()" [formGroup]="form">
+      <label for="email" class="block text-sm font-medium text-navy-900">Correo electrónico</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        autocomplete="username"
+        class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+        [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+        aria-describedby="email-error"
+      />
+      <p id="email-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+          Ingresa tu correo electrónico.
+        } @else if (form.controls.email.touched && form.controls.email.hasError('emailFormat')) {
+          Ingresa un correo electrónico válido.
+        }
+      </p>
+
+      <label for="password" class="mt-4 block text-sm font-medium text-navy-900">Contraseña</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+        [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+        aria-describedby="password-error"
+      />
+      <p id="password-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+          Ingresa tu contraseña.
+        }
+      </p>
+
+      @if (errorMessage()) {
+        <p class="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-800" aria-live="assertive">
+          {{ errorMessage() }}
+        </p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="status() === 'submitting'"
+        class="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-navy-300"
+      >
+        {{ status() === 'submitting' ? 'Iniciando sesión…' : 'Iniciar sesión' }}
+      </button>
+    </form>
+  </div>
+</div>

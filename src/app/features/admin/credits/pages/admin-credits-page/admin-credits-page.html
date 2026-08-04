@@ -1,0 +1,265 @@
+<div class="flex items-center justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-bold tracking-tight text-navy-900">Créditos</h1>
+    <p class="mt-1 text-sm text-navy-600">Catálogo de tipos de crédito disponibles.</p>
+  </div>
+  <button
+    type="button"
+    (click)="refresh()"
+    [disabled]="status() === 'loading'"
+    class="flex shrink-0 items-center gap-2 rounded-full border border-navy-200 px-4 py-2 text-sm font-medium text-navy-700 transition-colors hover:bg-navy-50 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    <app-icon name="refresh" [size]="18" />
+    Actualizar
+  </button>
+</div>
+
+<div class="mt-8">
+  @switch (status()) {
+    @case ('loading') {
+      <p class="text-sm text-navy-600" aria-live="polite">Cargando créditos…</p>
+    }
+    @case ('error') {
+      <div
+        class="rounded-2xl border border-red-200 bg-red-50 p-6 text-center"
+        aria-live="assertive"
+      >
+        <p class="text-sm text-red-800">{{ loadErrorMessage() }}</p>
+        <button
+          type="button"
+          (click)="refresh()"
+          class="mt-4 rounded-full bg-red-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-800"
+        >
+          Reintentar
+        </button>
+      </div>
+    }
+    @case ('success') {
+      @if (credits().length === 0) {
+        <app-empty-state
+          icon="credit-card"
+          title="Aún no hay créditos registrados"
+          message="Cuando se cree un crédito en el catálogo, aparecerá en esta lista."
+        />
+      } @else {
+        <div class="overflow-x-auto rounded-2xl border border-navy-200 bg-white">
+          <table class="w-full min-w-[640px] text-left text-sm">
+            <thead
+              class="border-b border-navy-200 bg-navy-50 text-xs font-semibold uppercase text-navy-600"
+            >
+              <tr>
+                <th scope="col" class="px-4 py-3">Nombre</th>
+                <th scope="col" class="px-4 py-3">Monto mínimo</th>
+                <th scope="col" class="px-4 py-3">Monto máximo</th>
+                <th scope="col" class="px-4 py-3">Tasa anual</th>
+                <th scope="col" class="px-4 py-3">Plazo (meses)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (credito of credits(); track credito.id) {
+                <tr class="border-b border-navy-100 last:border-0">
+                  <td class="px-4 py-3 font-medium text-navy-900">{{ credito.nombre }}</td>
+                  <td class="px-4 py-3 text-navy-700">{{ credito.monto_minimo }}</td>
+                  <td class="px-4 py-3 text-navy-700">{{ credito.monto_maximo }}</td>
+                  <td class="px-4 py-3 text-navy-700">{{ credito.tasa_interes_anual }}%</td>
+                  <td class="px-4 py-3 text-navy-700">{{ credito.plazo_meses }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+</div>
+
+@if (canCreate()) {
+  <div class="mt-10 rounded-2xl border border-navy-200 bg-white p-8 shadow-sm">
+    <h2 class="text-lg font-semibold text-navy-900">Crear nuevo crédito</h2>
+
+    <form
+      class="mt-6 grid gap-6 sm:grid-cols-2"
+      novalidate
+      (ngSubmit)="onSubmit()"
+      [formGroup]="form"
+    >
+      <div class="sm:col-span-2">
+        <label for="nombre" class="block text-sm font-medium text-navy-900">Nombre</label>
+        <input
+          id="nombre"
+          type="text"
+          formControlName="nombre"
+          class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+          [attr.aria-invalid]="form.controls.nombre.invalid && form.controls.nombre.touched"
+          aria-describedby="nombre-error"
+        />
+        <p id="nombre-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+          @if (form.controls.nombre.touched && form.controls.nombre.hasError('required')) {
+            Ingresa el nombre del crédito.
+          } @else if (form.controls.nombre.touched && form.controls.nombre.hasError('maxlength')) {
+            El nombre no puede superar los 150 caracteres.
+          }
+        </p>
+      </div>
+
+      <div>
+        <label for="monto_minimo" class="block text-sm font-medium text-navy-900"
+          >Monto mínimo</label
+        >
+        <input
+          id="monto_minimo"
+          type="text"
+          inputmode="decimal"
+          formControlName="monto_minimo"
+          class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+          [attr.aria-invalid]="
+            form.controls.monto_minimo.invalid && form.controls.monto_minimo.touched
+          "
+          aria-describedby="monto_minimo-error"
+        />
+        <p id="monto_minimo-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+          @if (
+            form.controls.monto_minimo.touched && form.controls.monto_minimo.hasError('required')
+          ) {
+            Ingresa el monto mínimo.
+          } @else if (
+            form.controls.monto_minimo.touched &&
+            form.controls.monto_minimo.hasError('decimalFormat')
+          ) {
+            Usa un monto válido, hasta 2 decimales.
+          } @else if (
+            form.controls.monto_minimo.touched &&
+            form.controls.monto_minimo.hasError('mustBePositive')
+          ) {
+            El monto mínimo debe ser mayor a 0.
+          }
+        </p>
+      </div>
+
+      <div>
+        <label for="monto_maximo" class="block text-sm font-medium text-navy-900"
+          >Monto máximo</label
+        >
+        <input
+          id="monto_maximo"
+          type="text"
+          inputmode="decimal"
+          formControlName="monto_maximo"
+          class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+          [attr.aria-invalid]="
+            form.controls.monto_maximo.invalid && form.controls.monto_maximo.touched
+          "
+          aria-describedby="monto_maximo-error"
+        />
+        <p id="monto_maximo-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+          @if (
+            form.controls.monto_maximo.touched && form.controls.monto_maximo.hasError('required')
+          ) {
+            Ingresa el monto máximo.
+          } @else if (
+            form.controls.monto_maximo.touched &&
+            form.controls.monto_maximo.hasError('decimalFormat')
+          ) {
+            Usa un monto válido, hasta 2 decimales.
+          } @else if (
+            form.controls.monto_maximo.touched &&
+            form.controls.monto_maximo.hasError('mustBePositive')
+          ) {
+            El monto máximo debe ser mayor a 0.
+          } @else if (form.controls.monto_maximo.touched && form.hasError('montoRange')) {
+            El monto máximo debe ser mayor o igual al monto mínimo.
+          }
+        </p>
+      </div>
+
+      <div>
+        <label for="tasa_interes_anual" class="block text-sm font-medium text-navy-900"
+          >Tasa de interés anual (%)</label
+        >
+        <input
+          id="tasa_interes_anual"
+          type="text"
+          inputmode="decimal"
+          formControlName="tasa_interes_anual"
+          class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+          [attr.aria-invalid]="
+            form.controls.tasa_interes_anual.invalid && form.controls.tasa_interes_anual.touched
+          "
+          aria-describedby="tasa_interes_anual-error"
+        />
+        <p
+          id="tasa_interes_anual-error"
+          class="mt-2 min-h-5 text-sm text-red-700"
+          aria-live="polite"
+        >
+          @if (
+            form.controls.tasa_interes_anual.touched &&
+            form.controls.tasa_interes_anual.hasError('required')
+          ) {
+            Ingresa la tasa de interés anual.
+          } @else if (
+            form.controls.tasa_interes_anual.touched &&
+            form.controls.tasa_interes_anual.hasError('decimalFormat')
+          ) {
+            Usa una tasa válida, hasta 2 decimales.
+          }
+        </p>
+      </div>
+
+      <div>
+        <label for="plazo_meses" class="block text-sm font-medium text-navy-900"
+          >Plazo (meses)</label
+        >
+        <input
+          id="plazo_meses"
+          type="text"
+          inputmode="numeric"
+          formControlName="plazo_meses"
+          class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+          [attr.aria-invalid]="
+            form.controls.plazo_meses.invalid && form.controls.plazo_meses.touched
+          "
+          aria-describedby="plazo_meses-error"
+        />
+        <p id="plazo_meses-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+          @if (
+            form.controls.plazo_meses.touched && form.controls.plazo_meses.hasError('required')
+          ) {
+            Ingresa el plazo en meses.
+          } @else if (
+            form.controls.plazo_meses.touched && form.controls.plazo_meses.hasError('pattern')
+          ) {
+            Ingresa un número entero mayor a 0.
+          }
+        </p>
+      </div>
+
+      @if (formErrorMessage()) {
+        <p
+          class="rounded-lg bg-red-50 p-3 text-sm text-red-800 sm:col-span-2"
+          aria-live="assertive"
+        >
+          {{ formErrorMessage() }}
+        </p>
+      }
+      @if (formSuccessMessage()) {
+        <p
+          class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800 sm:col-span-2"
+          aria-live="polite"
+        >
+          {{ formSuccessMessage() }}
+        </p>
+      }
+
+      <div class="sm:col-span-2">
+        <button
+          type="submit"
+          [disabled]="formStatus() === 'submitting'"
+          class="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-navy-300 sm:w-auto"
+        >
+          {{ formStatus() === 'submitting' ? 'Creando…' : 'Crear crédito' }}
+        </button>
+      </div>
+    </form>
+  </div>
+}

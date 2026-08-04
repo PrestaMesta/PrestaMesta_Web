@@ -19,11 +19,16 @@ const angularApp = new AngularNodeAppEngine();
  * each header stays unambiguous and nothing gets set twice with conflicting values. See
  * docs/deployment-coolify.md and docs/security.md for the full header-ownership breakdown.
  *
- * The CSP is deliberately strict: no `unsafe-inline`, no `unsafe-eval`, no third-party origins.
- * Angular's production build needs neither inline scripts nor `eval`, and this app has no
- * component-level stylesheets (styling is Tailwind utility classes compiled into one external
- * stylesheet) and no `<img>`/`data:` usage, so `style-src`/`img-src` can stay `'self'` too.
+ * The CSP is deliberately strict: no `unsafe-inline`, no `unsafe-eval`. Angular's production build
+ * needs neither inline scripts nor `eval`, and this app has no component-level stylesheets
+ * (styling is Tailwind utility classes compiled into one external stylesheet) and no
+ * `<img>`/`data:` usage, so `style-src`/`img-src` can stay `'self'` too. `connect-src` explicitly
+ * allow-lists the deployed PrestaMesta API origin (see `apiBaseUrl` in
+ * public/config/app-config.json) — the site and the API are served from different origins, so
+ * `'self'` alone would silently block every XHR the admin dashboard makes.
  */
+const API_ORIGIN = 'https://apitest.prestamesta.fun';
+
 app.use((_req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
@@ -33,7 +38,7 @@ app.use((_req, res, next) => {
       "style-src 'self'",
       "img-src 'self'",
       "font-src 'self'",
-      "connect-src 'self'",
+      `connect-src 'self' ${API_ORIGIN}`,
       "manifest-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",

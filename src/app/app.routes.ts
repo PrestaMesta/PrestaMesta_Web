@@ -97,7 +97,7 @@ export const routes: Routes = [
         canActivate: [adminSuperadminGuard],
         title: 'Administradores — Panel administrativo PrestaMesta',
         loadComponent: () =>
-          import('./features/admin/pages/admin-administrators-page/admin-administrators-page').then(
+          import('./features/admin/administrators/pages/admin-administrators-page/admin-administrators-page').then(
             (m) => m.AdminAdministratorsPage,
           ),
       },

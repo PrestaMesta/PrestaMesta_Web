@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminAuthGuard } from './features/admin/auth/guards/admin-auth.guard';
+import { adminLoanAccessGuard } from './features/admin/auth/guards/admin-loan-access.guard';
 import { adminSuperadminGuard } from './features/admin/auth/guards/admin-superadmin.guard';
 
 export const routes: Routes = [
@@ -70,11 +71,26 @@ export const routes: Routes = [
       },
       {
         path: 'solicitudes',
-        title: 'Solicitudes — Panel administrativo PrestaMesta',
-        loadComponent: () =>
-          import('./features/admin/pages/admin-requests-page/admin-requests-page').then(
-            (m) => m.AdminRequestsPage,
-          ),
+        canActivate: [adminLoanAccessGuard],
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            title: 'Solicitudes — Panel administrativo PrestaMesta',
+            loadComponent: () =>
+              import('./features/admin/loan-requests/pages/admin-requests-page/admin-requests-page').then(
+                (m) => m.AdminRequestsPage,
+              ),
+          },
+          {
+            path: ':id',
+            title: 'Detalle de solicitud — Panel administrativo PrestaMesta',
+            loadComponent: () =>
+              import('./features/admin/loan-requests/pages/admin-request-detail-page/admin-request-detail-page').then(
+                (m) => m.AdminRequestDetailPage,
+              ),
+          },
+        ],
       },
       {
         path: 'administradores',

@@ -1,0 +1,241 @@
+<a
+  routerLink="/admin/solicitudes"
+  class="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+>
+  ← Volver al listado
+</a>
+
+<div class="mt-4">
+  @switch (status()) {
+    @case ('loading') {
+      <p class="text-sm text-navy-600" aria-live="polite">Cargando solicitud…</p>
+    }
+    @case ('notFound') {
+      <div class="rounded-2xl border border-navy-200 bg-white p-6 text-center">
+        <p class="text-sm text-navy-700">{{ loadErrorMessage() }}</p>
+      </div>
+    }
+    @case ('error') {
+      <div
+        class="rounded-2xl border border-red-200 bg-red-50 p-6 text-center"
+        aria-live="assertive"
+      >
+        <p class="text-sm text-red-800">{{ loadErrorMessage() }}</p>
+        <button
+          type="button"
+          (click)="refresh()"
+          class="mt-4 rounded-full bg-red-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-800"
+        >
+          Reintentar
+        </button>
+      </div>
+    }
+    @case ('success') {
+      @if (prestamo(); as p) {
+        <div class="flex items-center justify-between gap-4">
+          <h1 class="text-2xl font-bold tracking-tight text-navy-900">Solicitud #{{ p.id }}</h1>
+          <span
+            class="rounded-full px-3 py-1 text-xs font-semibold"
+            [class]="
+              p.estado === 'APROBADO'
+                ? 'bg-emerald-50 text-emerald-800'
+                : p.estado === 'RECHAZADO'
+                  ? 'bg-red-50 text-red-800'
+                  : 'bg-amber-50 text-amber-800'
+            "
+          >
+            {{ p.estado }}
+          </span>
+        </div>
+
+        <div class="mt-6 grid gap-6 sm:grid-cols-2">
+          <div class="rounded-2xl border border-navy-200 bg-white p-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-navy-500">Cliente</h2>
+            <dl class="mt-3 space-y-2 text-sm">
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Nombre</dt>
+                <dd class="font-medium text-navy-900">{{ p.cliente.nombre }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Correo</dt>
+                <dd class="font-medium text-navy-900">{{ p.cliente.email }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Teléfono</dt>
+                <dd class="font-medium text-navy-900">
+                  {{ p.cliente.telefono ?? 'No registrado' }}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="rounded-2xl border border-navy-200 bg-white p-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-navy-500">Crédito</h2>
+            <dl class="mt-3 space-y-2 text-sm">
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Nombre</dt>
+                <dd class="font-medium text-navy-900">{{ p.credito.nombre }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Rango</dt>
+                <dd class="font-medium text-navy-900">
+                  {{ p.credito.monto_minimo }} – {{ p.credito.monto_maximo }}
+                </dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Tasa anual</dt>
+                <dd class="font-medium text-navy-900">{{ p.credito.tasa_interes_anual }}%</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Plazo</dt>
+                <dd class="font-medium text-navy-900">{{ p.credito.plazo_meses }} meses</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="rounded-2xl border border-navy-200 bg-white p-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-navy-500">Solicitud</h2>
+            <dl class="mt-3 space-y-2 text-sm">
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Monto solicitado</dt>
+                <dd class="font-medium text-navy-900">{{ p.monto_solicitado }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Monto total a pagar</dt>
+                <dd class="font-medium text-navy-900">{{ p.monto_total_a_pagar }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Saldo pendiente</dt>
+                <dd class="font-medium text-navy-900">{{ p.saldo_pendiente }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Fecha de solicitud</dt>
+                <dd class="font-medium text-navy-900">{{ p.fecha_solicitud }}</dd>
+              </div>
+              <div class="flex justify-between gap-4">
+                <dt class="text-navy-600">Fecha de decisión</dt>
+                <dd class="font-medium text-navy-900">{{ p.fecha_decision ?? 'Sin decisión' }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="rounded-2xl border border-navy-200 bg-white p-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-navy-500">Aval</h2>
+            @if (p.aval; as aval) {
+              <dl class="mt-3 space-y-2 text-sm">
+                <div class="flex justify-between gap-4">
+                  <dt class="text-navy-600">Nombre</dt>
+                  <dd class="font-medium text-navy-900">{{ aval.nombre }}</dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <dt class="text-navy-600">Teléfono</dt>
+                  <dd class="font-medium text-navy-900">{{ aval.telefono }}</dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <dt class="text-navy-600">Dirección</dt>
+                  <dd class="font-medium text-navy-900">{{ aval.direccion ?? 'No registrada' }}</dd>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <dt class="text-navy-600">Ingreso mensual</dt>
+                  <dd class="font-medium text-navy-900">
+                    {{ aval.ingreso_mensual ?? 'No registrado' }}
+                  </dd>
+                </div>
+              </dl>
+            } @else {
+              <p class="mt-3 text-sm text-navy-600">Esta solicitud no tiene aval registrado.</p>
+            }
+          </div>
+        </div>
+
+        @if (actionSuccessMessage()) {
+          <p class="mt-6 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800" aria-live="polite">
+            {{ actionSuccessMessage() }}
+          </p>
+        }
+        @if (actionErrorMessage()) {
+          <p class="mt-6 rounded-lg bg-red-50 p-3 text-sm text-red-800" aria-live="assertive">
+            {{ actionErrorMessage() }}
+          </p>
+        }
+
+        @if (canDecide() && p.estado === 'PENDIENTE') {
+          @if (pendingAction(); as accion) {
+            <div class="mt-6 rounded-2xl border border-navy-200 bg-white p-6">
+              <p class="text-sm font-medium text-navy-900">
+                @if (accion === 'APROBADO') {
+                  ¿Confirmas aprobar esta solicitud?
+                } @else {
+                  ¿Confirmas rechazar esta solicitud?
+                }
+              </p>
+
+              <form class="mt-4" novalidate [formGroup]="motivoForm" (ngSubmit)="confirmAction()">
+                <label for="motivo" class="block text-sm font-medium text-navy-900"
+                  >Motivo (opcional)</label
+                >
+                <textarea
+                  id="motivo"
+                  formControlName="motivo"
+                  rows="3"
+                  class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-sm text-navy-900 focus-visible:border-emerald-600"
+                  [attr.aria-invalid]="
+                    motivoForm.controls.motivo.invalid && motivoForm.controls.motivo.touched
+                  "
+                ></textarea>
+                <p class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+                  @if (
+                    motivoForm.controls.motivo.touched &&
+                    motivoForm.controls.motivo.hasError('maxlength')
+                  ) {
+                    El motivo no puede superar los 500 caracteres.
+                  }
+                </p>
+
+                <div class="mt-4 flex gap-3">
+                  <button
+                    type="submit"
+                    [disabled]="actionStatus() === 'submitting'"
+                    class="rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:bg-navy-300"
+                    [class]="
+                      accion === 'APROBADO'
+                        ? 'bg-emerald-700 hover:bg-emerald-800'
+                        : 'bg-red-700 hover:bg-red-800'
+                    "
+                  >
+                    {{ actionStatus() === 'submitting' ? 'Enviando…' : 'Confirmar' }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="cancelAction()"
+                    [disabled]="actionStatus() === 'submitting'"
+                    class="rounded-full border border-navy-200 px-5 py-2.5 text-sm font-medium text-navy-700 transition-colors hover:bg-navy-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </div>
+          } @else {
+            <div class="mt-6 flex gap-3">
+              <button
+                type="button"
+                (click)="startAction('APROBADO')"
+                class="rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-800"
+              >
+                Aprobar
+              </button>
+              <button
+                type="button"
+                (click)="startAction('RECHAZADO')"
+                class="rounded-full bg-red-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-800"
+              >
+                Rechazar
+              </button>
+            </div>
+          }
+        }
+      }
+    }
+  }
+</div>

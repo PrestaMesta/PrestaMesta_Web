@@ -1,5 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminRole } from '../../../auth/models/admin-session.model';
 import { emailFormatValidator, normalizeEmail } from '../../../auth/validators/email.validator';
@@ -54,6 +62,18 @@ export class AdminAdministratorsPage {
     password: ['', [Validators.required, passwordPolicyValidator]],
     rol: this.formBuilder.control<'' | AdminRole>('', Validators.required),
   });
+
+  private readonly confirmPanel = viewChild<ElementRef<HTMLElement>>('confirmPanel');
+
+  constructor() {
+    // Same rationale as the solicitudes detail confirmation panel: new interactive controls
+    // appear (Confirmar/Cancelar), so focus moves into them like it would for a modal.
+    effect(() => {
+      if (this.pendingSubmission() !== null) {
+        this.confirmPanel()?.nativeElement.focus();
+      }
+    });
+  }
 
   requestConfirmation(): void {
     if (this.form.invalid) {

@@ -91,6 +91,19 @@ describe('AdminCreditsPage — list states', () => {
     expect(fixture.nativeElement.querySelector('button')).not.toBeNull();
   });
 
+  it('shows a forbidden-specific message on a 403 (session preserved — no logout here)', () => {
+    configure(
+      'SUPERADMIN',
+      vi.fn().mockReturnValue(throwError(() => new HttpErrorResponse({ status: 403 }))),
+    );
+
+    const fixture = createInstance();
+
+    expect(fixture.componentInstance.loadErrorMessage()).toBe(
+      'No tienes permiso para consultar el catálogo de créditos.',
+    );
+  });
+
   it('refresh() re-fetches the catalog', () => {
     const { list } = configure('SUPERADMIN', vi.fn().mockReturnValue(of([CREDIT])));
 
@@ -129,6 +142,30 @@ describe('AdminCreditsPage — role gating', () => {
     fixture.componentInstance.onSubmit();
 
     expect(create).not.toHaveBeenCalled();
+  });
+});
+
+describe('AdminCreditsPage — accessible status regions', () => {
+  it('the top-level error banner is a persistent node, never removed/recreated, so it is reliably announced', () => {
+    const { create } = configure(
+      'SUPERADMIN',
+      vi.fn().mockReturnValue(of([CREDIT])),
+      vi.fn().mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 }))),
+    );
+    const fixture = createInstance();
+
+    const assertiveBefore = fixture.nativeElement.querySelector('[aria-live="assertive"]');
+    expect(assertiveBefore).not.toBeNull();
+    expect(assertiveBefore.textContent.trim()).toBe('');
+
+    fixture.componentInstance.form.setValue(VALID_FORM_VALUE);
+    fixture.componentInstance.onSubmit();
+    fixture.detectChanges();
+
+    const assertiveAfter = fixture.nativeElement.querySelector('[aria-live="assertive"]');
+    expect(assertiveAfter).toBe(assertiveBefore);
+    expect(assertiveAfter.textContent.trim().length).toBeGreaterThan(0);
+    expect(create).toHaveBeenCalledOnce();
   });
 });
 

@@ -234,22 +234,22 @@
         </p>
       </div>
 
-      @if (formErrorMessage()) {
-        <p
-          class="rounded-lg bg-red-50 p-3 text-sm text-red-800 sm:col-span-2"
-          aria-live="assertive"
-        >
-          {{ formErrorMessage() }}
-        </p>
-      }
-      @if (formSuccessMessage()) {
-        <p
-          class="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800 sm:col-span-2"
-          aria-live="polite"
-        >
-          {{ formSuccessMessage() }}
-        </p>
-      }
+      <p
+        class="sm:col-span-2"
+        [class]="formErrorMessage() ? 'rounded-lg bg-red-50 p-3 text-sm text-red-800' : ''"
+        aria-live="assertive"
+      >
+        {{ formErrorMessage() }}
+      </p>
+      <p
+        class="sm:col-span-2"
+        [class]="
+          formSuccessMessage() ? 'rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800' : ''
+        "
+        aria-live="polite"
+      >
+        {{ formSuccessMessage() }}
+      </p>
 
       <div class="sm:col-span-2">
         <button

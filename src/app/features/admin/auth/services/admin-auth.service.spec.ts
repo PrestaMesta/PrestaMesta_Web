@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiConfigService } from '../../../../core/api/api-config.service';
-import { AdminSessionService } from './admin-session.service';
+import { ADMIN_SESSION_STORAGE_KEY, AdminSessionService } from './admin-session.service';
 import { AdminAuthService } from './admin-auth.service';
 
 const LOGIN_URL = 'https://apitest.prestamesta.fun/api/v1/admin/auth/login';
@@ -15,7 +15,7 @@ describe('AdminAuthService', () => {
   let sessionService: AdminSessionService;
 
   beforeEach(() => {
-    sessionStorage.clear();
+    sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -32,7 +32,7 @@ describe('AdminAuthService', () => {
   });
 
   afterEach(() => {
-    sessionStorage.clear();
+    sessionStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
   });
 
   it('logs in successfully and persists the returned session', async () => {

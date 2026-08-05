@@ -1,5 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AdminSessionService } from '../../../auth/services/admin-session.service';
@@ -59,7 +68,18 @@ export class AdminRequestDetailPage {
     motivo: ['', [Validators.maxLength(MOTIVO_MAX_LENGTH)]],
   });
 
+  private readonly confirmPanel = viewChild<ElementRef<HTMLElement>>('confirmPanel');
+
   constructor() {
+    // Opening the confirmation panel introduces new interactive controls (Confirmar/Cancelar);
+    // moving focus into it is the same expectation as opening a modal, so keyboard/screen-reader
+    // users aren't left on a button that's still there but no longer does what it did a moment ago.
+    effect(() => {
+      if (this.pendingAction() !== null) {
+        this.confirmPanel()?.nativeElement.focus();
+      }
+    });
+
     const rawId = this.route.snapshot.paramMap.get('id');
     const parsedId = Number(rawId);
 

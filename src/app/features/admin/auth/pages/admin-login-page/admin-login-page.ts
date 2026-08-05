@@ -55,10 +55,12 @@ export class AdminLoginPage {
       next: () => {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         // Only ever follow a returnUrl back into /admin — never an attacker-supplied external
-        // redirect, even though today it can only come from our own guard.
-        void this.router.navigateByUrl(
-          returnUrl && returnUrl.startsWith('/admin') ? returnUrl : '/admin',
-        );
+        // redirect, even though today it can only come from our own guard. Also excludes
+        // /admin/login itself: a crafted `?returnUrl=/admin/login` would otherwise bounce a
+        // freshly authenticated admin straight back to the login page instead of the dashboard.
+        const isSafeReturnUrl =
+          !!returnUrl && returnUrl.startsWith('/admin') && !returnUrl.startsWith('/admin/login');
+        void this.router.navigateByUrl(isSafeReturnUrl ? returnUrl : '/admin');
       },
       error: (error: unknown) => {
         this.status.set('idle');

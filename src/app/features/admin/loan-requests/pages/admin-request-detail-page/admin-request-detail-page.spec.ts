@@ -201,6 +201,19 @@ describe('AdminRequestDetailPage — approve/reject flow', () => {
     expect(fixture.componentInstance.pendingAction()).toBe('APROBADO');
   });
 
+  it('moves focus into the confirmation panel when it opens', async () => {
+    configure();
+    const fixture = createInstance();
+
+    fixture.componentInstance.startAction('APROBADO');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const panel = fixture.nativeElement.querySelector('[tabindex="-1"]');
+    expect(panel).not.toBeNull();
+    expect(document.activeElement).toBe(panel);
+  });
+
   it('cancelAction() dismisses the confirmation without calling the service', () => {
     const { cambiarEstado } = configure();
     const fixture = createInstance();

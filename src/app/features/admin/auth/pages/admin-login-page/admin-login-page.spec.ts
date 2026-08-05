@@ -80,6 +80,17 @@ describe('AdminLoginPage', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/admin');
   });
 
+  it('ignores a returnUrl pointing back at /admin/login (redirect-loop guard)', () => {
+    configure('/admin/login');
+    login.mockReturnValue(of({ id: 1, nombre: 'Ana', email: 'a@b.com', rol: 'ANALISTA' }));
+    const fixture = createInstance();
+    fixture.componentInstance.form.setValue({ email: 'a@b.com', password: 'secret' });
+
+    fixture.componentInstance.onSubmit();
+
+    expect(navigateByUrl).toHaveBeenCalledWith('/admin');
+  });
+
   it('shows a generic message for invalid credentials without leaking which field failed', () => {
     login.mockReturnValue(
       throwError(

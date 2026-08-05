@@ -23,6 +23,7 @@ const TASA_MAX_INTEGER_DIGITS = 3;
 const NOMBRE_MAX_LENGTH = 150;
 
 const GENERIC_LOAD_ERROR = 'No se pudo cargar el catálogo de créditos. Inténtalo de nuevo.';
+const FORBIDDEN_LOAD_ERROR = 'No tienes permiso para consultar el catálogo de créditos.';
 const GENERIC_CREATE_ERROR = 'No se pudo crear el crédito. Inténtalo de nuevo.';
 const FORBIDDEN_CREATE_ERROR = 'No tienes permiso para crear créditos.';
 
@@ -130,9 +131,13 @@ export class AdminCreditsPage {
         this.credits.set(credits);
         this.status.set('success');
       },
-      error: () => {
+      error: (error: unknown) => {
         this.status.set('error');
-        this.loadErrorMessage.set(GENERIC_LOAD_ERROR);
+        this.loadErrorMessage.set(
+          error instanceof HttpErrorResponse && error.status === 403
+            ? FORBIDDEN_LOAD_ERROR
+            : GENERIC_LOAD_ERROR,
+        );
       },
     });
   }

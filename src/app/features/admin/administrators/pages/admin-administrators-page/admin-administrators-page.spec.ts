@@ -96,6 +96,21 @@ describe('AdminAdministratorsPage — confirmation flow', () => {
     expect(fixture.componentInstance.pendingSubmission()).not.toBeNull();
   });
 
+  it('moves focus into the confirmation panel when it opens', async () => {
+    const { create } = configure();
+    const fixture = createInstance();
+    fixture.componentInstance.form.setValue(VALID_VALUE);
+
+    fixture.componentInstance.requestConfirmation();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(create).not.toHaveBeenCalled();
+    const panel = fixture.nativeElement.querySelector('[tabindex="-1"]');
+    expect(panel).not.toBeNull();
+    expect(document.activeElement).toBe(panel);
+  });
+
   it('shows nombre/email/rol in the confirmation panel but never the password', () => {
     configure();
     const fixture = createInstance();

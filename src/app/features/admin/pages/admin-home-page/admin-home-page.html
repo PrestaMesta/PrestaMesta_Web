@@ -1,11 +1,21 @@
 <h1 class="text-2xl font-bold tracking-tight text-navy-900">Hola, {{ admin()?.nombre }}</h1>
-<p class="mt-1 text-sm text-navy-600">Bienvenido al panel administrativo de PrestaMesta.</p>
+<p class="mt-1 text-sm text-navy-600">
+  Sesión iniciada como <span class="font-medium text-navy-900">{{ admin()?.rol }}</span
+  >.
+</p>
 
-<div class="mt-8">
-  <app-empty-state
-    icon="home"
-    title="El resumen de actividad llegará pronto"
-    message="Todavía no hay métricas ni resúmenes que mostrar aquí. Usa el menú lateral para navegar a
-      Créditos, Solicitudes o Administradores."
-  />
+<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  @for (link of quickLinks(); track link.path) {
+    <a
+      [routerLink]="link.path"
+      class="flex items-center gap-4 rounded-2xl border border-navy-200 bg-white p-6 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50/40"
+    >
+      <span
+        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-navy-50 text-navy-600"
+      >
+        <app-icon [name]="link.icon" [size]="22" />
+      </span>
+      <span class="text-sm font-semibold text-navy-900">{{ link.label }}</span>
+    </a>
+  }
 </div>

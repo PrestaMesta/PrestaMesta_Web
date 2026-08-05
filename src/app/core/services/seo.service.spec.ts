@@ -53,4 +53,12 @@ describe('SeoService', () => {
       'https://prestamesta.example.com/prueba',
     );
   });
+
+  it('setNoIndex() adds a noindex,nofollow robots meta tag', () => {
+    expect(meta.getTag('name="robots"')).toBeNull();
+
+    service.setNoIndex();
+
+    expect(meta.getTag('name="robots"')?.content).toBe('noindex, nofollow');
+  });
 });

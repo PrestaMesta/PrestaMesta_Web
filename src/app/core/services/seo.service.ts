@@ -44,6 +44,16 @@ export class SeoService {
     this.setCanonicalLink(canonicalUrl);
   }
 
+  /**
+   * Keeps authenticated, session-gated admin pages out of search results. Uses Angular's `Meta`
+   * service (not direct DOM access), so it works the same whether the route ends up rendered on
+   * the server or the client — irrelevant here today since `/admin/**` is `RenderMode.Client` (see
+   * app.routes.server.ts), but the mechanism itself doesn't assume that.
+   */
+  setNoIndex(): void {
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
   private setCanonicalLink(url: string): void {
     let link = this.document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
 

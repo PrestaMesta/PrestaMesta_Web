@@ -53,4 +53,17 @@ describe('Header', () => {
     await fixture.whenStable();
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
   });
+
+  it('keeps the "Descargar APK" CTAs scrolling to the on-page download section, not linking off-site', async () => {
+    const fixture = TestBed.createComponent(Header);
+    await fixture.whenStable();
+
+    const ctas: HTMLAnchorElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('a[href*="descarga"]'),
+    );
+    expect(ctas.length).toBeGreaterThan(0);
+    for (const cta of ctas) {
+      expect(cta.getAttribute('href')).toBe('/#descarga');
+    }
+  });
 });

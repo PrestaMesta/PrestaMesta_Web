@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SeoService } from '../../../../../core/services/seo.service';
 import { AdminAuthService } from '../../services/admin-auth.service';
 import { emailFormatValidator, normalizeEmail } from '../../validators/email.validator';
 
@@ -11,6 +12,13 @@ const MAX_EMAIL_LENGTH = 254;
 const GENERIC_ERROR = 'Ocurrió un error al iniciar sesión. Inténtalo de nuevo.';
 const INVALID_CREDENTIALS_ERROR = 'Correo o contraseña incorrectos.';
 
+/**
+ * Checkpoint 6C — mandatory MFA: a correct password no longer creates a session by itself. It
+ * only starts the MFA flow (see AdminAuthService.login / AdminMfaFlowService); this page routes
+ * to `/admin/mfa/enrolar` or `/admin/mfa/verificar` based on `siguientePaso`, forwarding
+ * `returnUrl` as a query param so the MFA pages can resolve it safely once the real session
+ * exists.
+ */
 @Component({
   selector: 'app-admin-login-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +44,11 @@ export class AdminLoginPage {
     password: ['', [Validators.required]],
   });
 
+  constructor() {
+    // Never indexed — same reasoning as the admin shell, and now also true for the MFA pages.
+    inject(SeoService).setNoIndex();
+  }
+
   onSubmit(): void {
     if (this.status() === 'submitting') {
       return;
@@ -52,15 +65,13 @@ export class AdminLoginPage {
     const { email, password } = this.form.getRawValue();
 
     this.adminAuth.login(normalizeEmail(email), password).subscribe({
-      next: () => {
+      next: (response) => {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        // Only ever follow a returnUrl back into /admin — never an attacker-supplied external
-        // redirect, even though today it can only come from our own guard. Also excludes
-        // /admin/login itself: a crafted `?returnUrl=/admin/login` would otherwise bounce a
-        // freshly authenticated admin straight back to the login page instead of the dashboard.
-        const isSafeReturnUrl =
-          !!returnUrl && returnUrl.startsWith('/admin') && !returnUrl.startsWith('/admin/login');
-        void this.router.navigateByUrl(isSafeReturnUrl ? returnUrl : '/admin');
+        const nextPath =
+          response.siguientePaso === 'MFA_ENROLLMENT_REQUIRED'
+            ? '/admin/mfa/enrolar'
+            : '/admin/mfa/verificar';
+        void this.router.navigate([nextPath], returnUrl ? { queryParams: { returnUrl } } : {});
       },
       error: (error: unknown) => {
         this.status.set('idle');

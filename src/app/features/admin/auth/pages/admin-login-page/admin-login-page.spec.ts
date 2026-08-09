@@ -3,21 +3,25 @@ import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SeoService } from '../../../../../core/services/seo.service';
 import { AdminAuthService } from '../../services/admin-auth.service';
 import { AdminLoginPage } from './admin-login-page';
 
 describe('AdminLoginPage', () => {
   let login: ReturnType<typeof vi.fn>;
-  let navigateByUrl: ReturnType<typeof vi.fn>;
+  let navigate: ReturnType<typeof vi.fn>;
+  let setNoIndex: ReturnType<typeof vi.fn>;
 
   function configure(returnUrl: string | null = null) {
     login = vi.fn();
+    setNoIndex = vi.fn();
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       imports: [AdminLoginPage],
       providers: [
         provideRouter([]),
         { provide: AdminAuthService, useValue: { login } },
+        { provide: SeoService, useValue: { setNoIndex, updateMetadata: vi.fn() } },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -26,7 +30,7 @@ describe('AdminLoginPage', () => {
         },
       ],
     });
-    navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   }
 
   function createInstance() {
@@ -36,6 +40,11 @@ describe('AdminLoginPage', () => {
   }
 
   beforeEach(() => configure());
+
+  it('marks the page noindex on construction', () => {
+    createInstance();
+    expect(setNoIndex).toHaveBeenCalledOnce();
+  });
 
   it('shows required errors when submitted empty', async () => {
     const fixture = createInstance();
@@ -47,48 +56,77 @@ describe('AdminLoginPage', () => {
     expect(login).not.toHaveBeenCalled();
   });
 
-  it('logs in successfully and navigates to /admin by default', () => {
-    login.mockReturnValue(of({ id: 1, nombre: 'Ana', email: 'a@b.com', rol: 'SUPERADMIN' }));
+  it('routes to the enrollment page when the backend says MFA_ENROLLMENT_REQUIRED', () => {
+    login.mockReturnValue(
+      of({
+        mensaje: 'Verifica tu identidad.',
+        preMfaToken: 'pre-mfa-token',
+        siguientePaso: 'MFA_ENROLLMENT_REQUIRED',
+        mfaEstado: 'NO_ENROLADO',
+      }),
+    );
     const fixture = createInstance();
     fixture.componentInstance.form.setValue({ email: 'A@B.com', password: 'secret' });
 
     fixture.componentInstance.onSubmit();
 
     expect(login).toHaveBeenCalledWith('a@b.com', 'secret');
-    expect(navigateByUrl).toHaveBeenCalledWith('/admin');
+    expect(navigate).toHaveBeenCalledWith(['/admin/mfa/enrolar'], {});
   });
 
-  it('follows a same-app returnUrl on success', () => {
+  it('routes to the challenge page when the backend says MFA_CHALLENGE_REQUIRED', () => {
+    login.mockReturnValue(
+      of({
+        mensaje: 'Verifica tu identidad.',
+        preMfaToken: 'pre-mfa-token',
+        siguientePaso: 'MFA_CHALLENGE_REQUIRED',
+        mfaEstado: 'ACTIVO',
+      }),
+    );
+    const fixture = createInstance();
+    fixture.componentInstance.form.setValue({ email: 'a@b.com', password: 'secret' });
+
+    fixture.componentInstance.onSubmit();
+
+    expect(navigate).toHaveBeenCalledWith(['/admin/mfa/verificar'], {});
+  });
+
+  it('forwards a same-app returnUrl as a query param to the MFA route', () => {
     configure('/admin/creditos');
-    login.mockReturnValue(of({ id: 1, nombre: 'Ana', email: 'a@b.com', rol: 'ANALISTA' }));
+    login.mockReturnValue(
+      of({
+        mensaje: 'ok',
+        preMfaToken: 'pre-mfa-token',
+        siguientePaso: 'MFA_CHALLENGE_REQUIRED',
+        mfaEstado: 'ACTIVO',
+      }),
+    );
     const fixture = createInstance();
     fixture.componentInstance.form.setValue({ email: 'a@b.com', password: 'secret' });
 
     fixture.componentInstance.onSubmit();
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/admin/creditos');
+    expect(navigate).toHaveBeenCalledWith(['/admin/mfa/verificar'], {
+      queryParams: { returnUrl: '/admin/creditos' },
+    });
   });
 
-  it('ignores an external returnUrl (open-redirect guard)', () => {
-    configure('https://evil.example.com');
-    login.mockReturnValue(of({ id: 1, nombre: 'Ana', email: 'a@b.com', rol: 'ANALISTA' }));
+  it('does not create a session directly — login alone never yields one', () => {
+    login.mockReturnValue(
+      of({
+        mensaje: 'ok',
+        preMfaToken: 'pre-mfa-token',
+        siguientePaso: 'MFA_ENROLLMENT_REQUIRED',
+        mfaEstado: 'NO_ENROLADO',
+      }),
+    );
     const fixture = createInstance();
     fixture.componentInstance.form.setValue({ email: 'a@b.com', password: 'secret' });
 
     fixture.componentInstance.onSubmit();
 
-    expect(navigateByUrl).toHaveBeenCalledWith('/admin');
-  });
-
-  it('ignores a returnUrl pointing back at /admin/login (redirect-loop guard)', () => {
-    configure('/admin/login');
-    login.mockReturnValue(of({ id: 1, nombre: 'Ana', email: 'a@b.com', rol: 'ANALISTA' }));
-    const fixture = createInstance();
-    fixture.componentInstance.form.setValue({ email: 'a@b.com', password: 'secret' });
-
-    fixture.componentInstance.onSubmit();
-
-    expect(navigateByUrl).toHaveBeenCalledWith('/admin');
+    // The component only ever routes to an MFA page — it never touches AdminSessionService.
+    expect(navigate).not.toHaveBeenCalledWith(['/admin']);
   });
 
   it('shows a generic message for invalid credentials without leaking which field failed', () => {
@@ -122,7 +160,14 @@ describe('AdminLoginPage', () => {
   });
 
   it('ignores a second submit while one is already in flight', () => {
-    login.mockReturnValue(of({ id: 1, nombre: 'Ana', email: 'a@b.com', rol: 'ANALISTA' }));
+    login.mockReturnValue(
+      of({
+        mensaje: 'ok',
+        preMfaToken: 'pre-mfa-token',
+        siguientePaso: 'MFA_CHALLENGE_REQUIRED',
+        mfaEstado: 'ACTIVO',
+      }),
+    );
     const fixture = createInstance();
     const component = fixture.componentInstance;
     component.form.setValue({ email: 'a@b.com', password: 'secret' });

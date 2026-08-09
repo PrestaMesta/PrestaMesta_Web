@@ -1,0 +1,150 @@
+<div class="flex min-h-screen items-center justify-center bg-navy-50/60 px-4 py-16">
+  <div class="w-full max-w-md rounded-2xl border border-navy-200 bg-white p-8 shadow-sm">
+    @switch (status()) {
+      @case ('loading') {
+        <h1 class="text-2xl font-bold tracking-tight text-navy-900">Verificación en dos pasos</h1>
+        <p class="mt-4 text-sm text-navy-600" aria-live="polite">Generando tu código QR…</p>
+      }
+      @case ('error') {
+        <h1 class="text-2xl font-bold tracking-tight text-navy-900">Verificación en dos pasos</h1>
+        <div
+          class="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-center"
+          aria-live="assertive"
+        >
+          <p class="text-sm text-red-800">{{ loadErrorMessage() }}</p>
+          <button
+            type="button"
+            (click)="startEnrollment()"
+            class="mt-4 rounded-full bg-red-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-800"
+          >
+            Reintentar
+          </button>
+        </div>
+      }
+      @case ('ready') {
+        @if (recoveryCodes(); as codes) {
+          <div #recoveryPanel tabindex="-1" class="focus:outline-none">
+            <h1 class="text-2xl font-bold tracking-tight text-navy-900">
+              Guarda tus códigos de recuperación
+            </h1>
+            <p class="mt-2 text-sm text-navy-700">
+              Estos {{ codes.length }} códigos son la única forma de entrar si pierdes acceso a tu
+              aplicación autenticadora.
+              <strong>No volverán a mostrarse.</strong>
+            </p>
+
+            <ul class="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-navy-50 p-4 font-mono text-sm">
+              @for (codigo of codes; track codigo) {
+                <li class="text-navy-900">{{ codigo }}</li>
+              }
+            </ul>
+
+            <button
+              type="button"
+              (click)="copyRecoveryCodes()"
+              class="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-navy-200 px-4 py-2.5 text-sm font-medium text-navy-700 transition-colors hover:bg-navy-50"
+            >
+              Copiar todos los códigos
+            </button>
+            <p class="mt-2 min-h-5 text-sm text-emerald-700" aria-live="polite">
+              {{ copyFeedback() }}
+            </p>
+
+            <div class="mt-6 flex items-start gap-3">
+              <input
+                id="saved-ack"
+                type="checkbox"
+                class="mt-1 h-4 w-4 rounded border-navy-300"
+                [checked]="savedAcknowledged()"
+                (change)="savedAcknowledged.set(!savedAcknowledged())"
+              />
+              <label for="saved-ack" class="text-sm text-navy-900">
+                Ya guardé mis códigos de recuperación en un lugar seguro.
+              </label>
+            </div>
+
+            <button
+              type="button"
+              (click)="finishEnrollment()"
+              [disabled]="!savedAcknowledged()"
+              class="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-navy-300"
+            >
+              Entrar al panel
+            </button>
+          </div>
+        } @else {
+          <h1 class="text-2xl font-bold tracking-tight text-navy-900">Verificación en dos pasos</h1>
+          <p class="mt-2 text-sm text-navy-700">
+            Escanea este código con tu aplicación autenticadora (Google Authenticator, Authy, etc.)
+            y luego ingresa el código de 6 dígitos que te muestre.
+          </p>
+
+          <div class="mt-6 flex justify-center">
+            <canvas
+              #qrCanvas
+              width="220"
+              height="220"
+              role="img"
+              aria-label="Código QR para configurar la verificación en dos pasos"
+            ></canvas>
+          </div>
+
+          @if (qrRenderFailed()) {
+            <p class="mt-2 text-sm text-red-700" aria-live="assertive">
+              No se pudo generar el código QR. Usa la clave manual si está disponible.
+            </p>
+          }
+
+          @if (enrollment()?.secreto; as secreto) {
+            <p class="mt-4 text-center text-sm text-navy-600">
+              ¿No puedes escanear? Ingresa esta clave manualmente:
+              <code
+                class="mt-1 block break-all rounded-lg bg-navy-50 p-2 font-mono text-navy-900"
+                >{{ secreto }}</code
+              >
+            </p>
+          }
+
+          <form class="mt-8" novalidate (ngSubmit)="confirmEnrollment()" [formGroup]="form">
+            <label for="codigo" class="block text-sm font-medium text-navy-900"
+              >Código de 6 dígitos</label
+            >
+            <input
+              id="codigo"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              formControlName="codigo"
+              class="mt-2 w-full rounded-xl border border-navy-200 px-4 py-3 text-center text-lg tracking-widest text-navy-900 focus-visible:border-emerald-600"
+              [attr.aria-invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
+              aria-describedby="codigo-error"
+            />
+            <p id="codigo-error" class="mt-2 min-h-5 text-sm text-red-700" aria-live="polite">
+              @if (form.controls.codigo.touched && form.controls.codigo.hasError('required')) {
+                Ingresa el código de tu aplicación autenticadora.
+              } @else if (
+                form.controls.codigo.touched && form.controls.codigo.hasError('pattern')
+              ) {
+                El código debe tener exactamente 6 dígitos.
+              }
+            </p>
+
+            @if (confirmErrorMessage()) {
+              <p class="mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-800" aria-live="assertive">
+                {{ confirmErrorMessage() }}
+              </p>
+            }
+
+            <button
+              type="submit"
+              [disabled]="confirmStatus() === 'submitting'"
+              class="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-navy-300"
+            >
+              {{ confirmStatus() === 'submitting' ? 'Confirmando…' : 'Confirmar y activar' }}
+            </button>
+          </form>
+        }
+      }
+    }
+  </div>
+</div>

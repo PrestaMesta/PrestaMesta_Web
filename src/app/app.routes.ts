@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { adminAuthGuard } from './features/admin/auth/guards/admin-auth.guard';
 import { adminLoanAccessGuard } from './features/admin/auth/guards/admin-loan-access.guard';
+import { adminMfaEnrollDeactivateGuard } from './features/admin/auth/guards/admin-mfa-enroll-deactivate.guard';
+import { adminMfaStepGuard } from './features/admin/auth/guards/admin-mfa-flow.guard';
 import { adminSuperadminGuard } from './features/admin/auth/guards/admin-superadmin.guard';
 
 export const routes: Routes = [
@@ -44,6 +46,25 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/auth/pages/admin-login-page/admin-login-page').then(
         (m) => m.AdminLoginPage,
+      ),
+  },
+  {
+    path: 'admin/mfa/enrolar',
+    title: 'Verificación en dos pasos — Panel administrativo PrestaMesta',
+    canActivate: [adminMfaStepGuard('MFA_ENROLLMENT_REQUIRED')],
+    canDeactivate: [adminMfaEnrollDeactivateGuard],
+    loadComponent: () =>
+      import('./features/admin/auth/pages/admin-mfa-enroll-page/admin-mfa-enroll-page').then(
+        (m) => m.AdminMfaEnrollPage,
+      ),
+  },
+  {
+    path: 'admin/mfa/verificar',
+    title: 'Verificación en dos pasos — Panel administrativo PrestaMesta',
+    canActivate: [adminMfaStepGuard('MFA_CHALLENGE_REQUIRED')],
+    loadComponent: () =>
+      import('./features/admin/auth/pages/admin-mfa-verify-page/admin-mfa-verify-page').then(
+        (m) => m.AdminMfaVerifyPage,
       ),
   },
   {

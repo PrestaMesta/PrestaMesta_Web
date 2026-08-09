@@ -10,22 +10,18 @@ export interface AdminProfile {
   readonly rol: AdminRole;
 }
 
-/** Shape of a successful POST /admin/auth/login response. */
-export interface AdminLoginResponse {
-  readonly mensaje: string;
-  readonly token: string;
-  readonly admin: AdminProfile;
-}
-
 export interface AdminSession {
   readonly token: string;
   readonly admin: AdminProfile;
 }
 
 /**
- * Pure, defensive parser for whatever was last written to `sessionStorage`. Never throws: a
- * missing, malformed, or tampered value is treated as "no session" rather than crashing the app
- * or silently trusting an attacker-controlled string.
+ * Pure, defensive parser for whatever was last written to `sessionStorage` — also reused to
+ * defensively validate a fresh AdminMfaSessionResponse (`{ token, admin, ... }`) before ever
+ * calling AdminSessionService.set() with it, since extra fields on the input object (mensaje,
+ * codigosRecuperacion) are simply ignored. Never throws: a missing, malformed, or tampered value
+ * is treated as "no session" rather than crashing the app or silently trusting an
+ * attacker-controlled/malformed value.
  */
 export function parseAdminSession(raw: unknown): AdminSession | null {
   if (typeof raw !== 'object' || raw === null) {

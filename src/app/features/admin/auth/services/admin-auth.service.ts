@@ -1,31 +1,37 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ApiConfigService } from '../../../../core/api/api-config.service';
-import { AdminLoginResponse, AdminProfile } from '../models/admin-session.model';
+import { AdminLoginPreMfaResponse } from '../models/admin-mfa.model';
+import { AdminMfaFlowService } from './admin-mfa-flow.service';
 import { AdminSessionService } from './admin-session.service';
 
 /**
  * Talks to POST /admin/auth/login (public — no Authorization header, enforced by
- * `adminAuthInterceptor` recognizing this exact URL) and persists the resulting session.
+ * `adminAuthInterceptor` since this request carries neither ADMIN_AUTH_REQUIRED nor
+ * ADMIN_PRE_MFA_REQUIRED). Checkpoint 6C — mandatory MFA: login alone never yields a usable
+ * session anymore. A correct password only starts the MFA flow (`preMfaToken` +
+ * `siguientePaso`), persisted via AdminMfaFlowService. The real AdminSession is only ever
+ * created after MFA completes (see AdminMfaService + the enroll/verify pages).
  */
 @Injectable({ providedIn: 'root' })
 export class AdminAuthService {
   private readonly http = inject(HttpClient);
   private readonly apiConfig = inject(ApiConfigService);
   private readonly sessionService = inject(AdminSessionService);
+  private readonly mfaFlow = inject(AdminMfaFlowService);
 
-  login(email: string, password: string): Observable<AdminProfile> {
+  login(email: string, password: string): Observable<AdminLoginPreMfaResponse> {
     const url = `${this.apiConfig.baseUrl()}/admin/auth/login`;
-    return this.http.post<AdminLoginResponse>(url, { email, password }).pipe(
+    return this.http.post<AdminLoginPreMfaResponse>(url, { email, password }).pipe(
       tap((response) => {
-        this.sessionService.set({ token: response.token, admin: response.admin });
+        this.mfaFlow.start(response.preMfaToken, response.siguientePaso);
       }),
-      map((response) => response.admin),
     );
   }
 
   logout(): void {
     this.sessionService.clear();
+    this.mfaFlow.clear();
   }
 }

@@ -10,7 +10,14 @@ export type ApiErrorCode =
   | 'LOAN_NOT_FOUND'
   | 'INVALID_TRANSITION'
   | 'NOT_FOUND'
-  | 'INTERNAL_ERROR';
+  | 'INTERNAL_ERROR'
+  | 'MFA_ENROLLMENT_REQUIRED'
+  | 'MFA_CHALLENGE_REQUIRED'
+  | 'MFA_ENROLLMENT_INVALID'
+  | 'MFA_INVALID_CODE'
+  | 'MFA_CODE_REUSED'
+  | 'RECOVERY_CODE_ALREADY_USED'
+  | 'MFA_RATE_LIMITED';
 
 export interface ApiErrorEnvelope {
   readonly mensaje: string;
